@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Complex Ionic Page</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" rel="stylesheet">
+
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr/npm/@ionic/core/dist/ionic/ionic.js"></script>
+
+    <style>
+        /* Optional: Basic global styling if needed, but Ionic handles most of it */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background: var(--ion-background-color); /* Use Ionic's background variable */
+        }
+
+        /* Example custom styles (be careful not to override Ionic's defaults unless intentional) */
+        .page-title {
+            padding-inline-start: 16px; /* Adjust padding for searchbar alignment */
+        }
+
+        /* Style for the 'Today' segment button to highlight it initially */
+        ion-segment-button[value="today"] {
+            --background-checked: var(--ion-color-primary, #3880ff);
+            --color-checked: var(--ion-color-primary-contrast, #fff);
+        }
+
+        /* Hide content that needs to be loaded via JS */
+        #content-area {
+            opacity: 0; /* Initially hide until JS renders content */
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #content-area.loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <ion-app>
+        <ion-page>
+
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title class="page-title">Tasks</ion-title>
+                    <ion-buttons slot="end">
+                        <ion-button onclick="presentToast('Settings clicked!')">
+                            <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+                        </ion-button>
+                    </ion-buttons>
+                </ion-toolbar>
+                <ion-toolbar>
+                    <ion-searchbar placeholder="Search tasks..." animated></ion-searchbar>
+                </ion-toolbar>
+                <ion-toolbar>
+                    <ion-segment value="today">
+                        <ion-segment-button value="today">
+                            <ion-label>Today</ion-label>
+                        </ion-segment-button>
+                        <ion-segment-button value="upcoming">
+                            <ion-label>Upcoming</ion-label>
+                        </ion-segment-button>
+                        <ion-segment-button value="completed">
+                            <ion-label>Completed</ion-label>
+                        </ion-segment-button>
+                    </ion-segment>
+                </ion-toolbar>
+            </ion-header>
+
+            <ion-content fullscreen>
+                <ion-refresher slot="fixed" onionRefresh="doRefresh(event)">
+                    <ion-refresher-content pulling-icon="arrow-down"
+                                           pulling-text="Pull to refresh"
+                                           refreshing-spinner="circular"
+                                           refreshing-text="Refreshing...">
+                    </ion-refresher-content>
+                </ion-refresher>
+
+                <div class="ion-padding-vertical">
+                    <ion-card>
+                        <ion-card-header>
+                            <ion-card-subtitle>Important</ion-card-subtitle>
+                            <ion-card-title>Weekly Summary</ion-card-title>
+                        </ion-card-header>
+                        <ion-card-content>
+                            You have 5 pending tasks and 2 overdue tasks this week.
+                            <ion-button expand="block" fill="clear">View Details</ion-button>
+                        </ion-card-content>
+                    </ion-card>
+                </div>
+
+                <ion-list id="task-list">
+                    <ion-list-header>
+                        <ion-label>Today's Tasks</ion-label>
+                    </ion-list-header>
+
+                    <ion-item-sliding>
+                        <ion-item>
+                            <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+                            <ion-label>
+                                <h2>Complete Project Report</h2>
+                                <p>Due by 5:00 PM</p>
+                            </ion-label>
+                            <ion-badge slot="end" color="warning">High</ion-badge>
+                        </ion-item>
+                        <ion-item-options side="end">
+                            <ion-item-option color="primary" onclick="markAsComplete(this)">
+                                <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+                            </ion-item-option>
+                            <ion-item-option color="danger" onclick="deleteItem(this)">
+                                <ion-icon slot="icon-only" name="trash"></ion-icon>
+                            </ion-item-option>
+                        </ion-item-options>
+                    </ion-item-sliding>
+
+                    <ion-item-sliding>
+                        <ion-item>
+                            <ion-icon slot="start" name="calendar-outline"></ion-icon>
+                            <ion-label>
+                                <h2>Team Meeting</h2>
+                                <p>10:00 AM - Conference Room A</p>
+                            </ion-label>
+                        </ion-item>
+                        <ion-item-options side="end">
+                            <ion-item-option color="primary" onclick="markAsComplete(this)">
+                                <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+                            </ion-item-option>
+                            <ion-item-option color="danger" onclick="deleteItem(this)">
+                                <ion-icon slot="icon-only" name="trash"></ion-icon>
+                            </ion-item-option>
+                        </ion-item-options>
+                    </ion-item-sliding>
+
+                    <ion-item-sliding>
+                        <ion-item>
+                            <ion-icon slot="start" name="mail-outline"></ion-icon>
+                            <ion-label>
+                                <h2>Reply to Client Emails</h2>
+                                <p>Important follow-ups</p>
+                            </ion-label>
+                        </ion-item>
+                        <ion-item-options side="end">
+                            <ion-item-option color="primary" onclick="markAsComplete(this)">
+                                <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+                            </ion-item-option>
+                            <ion-item-option color="danger" onclick="deleteItem(this)">
+                                <ion-icon slot="icon-only" name="trash"></ion-icon>
+                            </ion-item-option>
+                        </ion-item-options>
+                    </ion-item-sliding>
+
+                    <ion-item-sliding>
+                        <ion-item>
+                            <ion-icon slot="start" name="build-outline"></ion-icon>
+                            <ion-label>
+                                <h2>Fix Bug #123</h2>
+                                <p>High priority production bug</p>
+                            </ion-label>
+                            <ion-badge slot="end" color="danger">Urgent</ion-badge>
+                        </ion-item>
+                        <ion-item-options side="end">
+                            <ion-item-option color="primary" onclick="markAsComplete(this)">
+                                <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+                            </ion-item-option>
+                            <ion-item-option color="danger" onclick="deleteItem(this)">
+                                <ion-icon slot="icon-only" name="trash"></ion-icon>
+                            </ion-item-option>
+                        </ion-item-options>
+                    </ion-item-sliding>
+
+                    <ion-item>
+                        <ion-icon slot="start" name="document-text-outline"></ion-icon>
+                        <ion-label>
+                            <h2>Review Design Mockups</h2>
+                            <p>For new feature "X"</p>
+                        </ion-label>
+                    </ion-item>
+
+                </ion-list>
+
+                <ion-list-header>
+                    <ion-label>Tomorrow's Tasks</ion-label>
+                </ion-list-header>
+                <ion-item>
+                    <ion-icon slot="start" name="videocam-outline"></ion-icon>
+                    <ion-label>
+                        <h2>Prepare for Client Demo</h2>
+                        <p>1:00 PM tomorrow</p>
+                    </ion-label>
+                </ion-item>
+                <ion-item>
+                    <ion-icon slot="start" name="book-outline"></ion-icon>
+                    <ion-label>
+                        <h2>Read Tech Article</h2>
+                        <p>New framework deep dive</p>
+                    </ion-label>
+                </ion-item>
+
+
+            </ion-content>
+
+            <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+                <ion-fab-button onclick="presentActionSheet()">
+                    <ion-icon name="add"></ion-icon>
+                </ion-fab-button>
+            </ion-fab>
+
+        </ion-page>
+    </ion-app>
+
+    <script>
+        // JavaScript for basic interactions (Vanilla JS)
+
+        // Function to simulate refreshing data
+        async function doRefresh(event) {
+            console.log('Begin async operation');
+            // Simulate a network request
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            console.log('Async operation ended');
+            event.detail.complete(); // Important: Tell Ionic the refresh is complete
+            presentToast('Content refreshed!');
+        }
+
+        // Example functions for item actions
+        async function markAsComplete(button) {
+            const itemSliding = button.closest('ion-item-sliding');
+            if (itemSliding) {
+                await itemSliding.closeOpened(); // Close the sliding item
+                const item = itemSliding.querySelector('ion-item');
+                item.style.opacity = '0.5';
+                item.style.textDecoration = 'line-through';
+                presentToast('Task marked as complete!');
+            }
+        }
+
+        async function deleteItem(button) {
+            const itemSliding = button.closest('ion-item-sliding');
+            if (itemSliding) {
+                await itemSliding.closeOpened(); // Close the sliding item
+                itemSliding.remove(); // Remove the item from the DOM
+                presentToast('Task deleted!');
+            }
+        }
+
+        // Function to present an Ionic toast message
+        async function presentToast(message) {
+            const toastController = document.querySelector('ion-toast-controller');
+            if (!toastController) {
+                // If controller isn't in DOM, create it (should be automatically in ion-app)
+                const app = document.querySelector('ion-app');
+                const newToastController = document.createElement('ion-toast-controller');
+                app.appendChild(newToastController);
+            }
+            const toast = await toastController.create({
+                message: message,
+                duration: 2000,
+                position: 'bottom'
+            });
+            toast.present();
+        }
+
+        // Function to present an Ionic action sheet
+        async function presentActionSheet() {
+            const actionSheetController = document.querySelector('ion-action-sheet-controller');
+            if (!actionSheetController) {
+                const app = document.querySelector('ion-app');
+                const newActionSheetController = document.createElement('ion-action-sheet-controller');
+                app.appendChild(newActionSheetController);
+            }
+            const actionSheet = await actionSheetController.create({
+                header: 'Task Actions',
+                buttons: [
+                    {
+                        text: 'Add New Task',
+                        icon: 'add-circle-outline',
+                        handler: () => {
+                            presentToast('Add new task clicked!');
+                        }
+                    },
+                    {
+                        text: 'Sort Tasks',
+                        icon: 'funnel-outline',
+                        handler: () => {
+                            presentToast('Sort tasks clicked!');
+                        }
+                    },
+                    {
+                        text: 'Cancel',
+                        icon: 'close',
+                        role: 'cancel',
+                        handler: () => {
+                            console.log('Cancel clicked');
+                        }
+                    }
+                ]
+            });
+            await actionSheet.present();
+        }
+
+        // Initial setup once Ionic is ready (important for web components)
+        document.addEventListener('DOMContentLoaded', () => {
+             // Append controllers to ion-app for programmatic use
+            const app = document.querySelector('ion-app');
+            const toastController = document.createElement('ion-toast-controller');
+            const actionSheetController = document.createElement('ion-action-sheet-controller');
+            app.appendChild(toastController);
+            app.appendChild(actionSheetController);
+
+            // Make content visible after initial setup
+            document.getElementById('content-area').classList.add('loaded');
+        });
+
+        // Event listener for segment button changes (Vanilla JS)
+        document.querySelector('ion-segment').addEventListener('ionChange', (event) => {
+            presentToast(`Segment changed to: ${event.detail.value}`);
+            // You would typically filter your list items here based on the selected segment
+        });
+
+    </script>
+</body>
+</html>
