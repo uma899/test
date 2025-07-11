@@ -10,15 +10,27 @@
   </head>
   <body>
     <div class="container">
-      <input
-        type="text"
-        name="search"
-        id="search"
-        placeholder="Search Contact..."
-      />
+      <div class="leftDiv">
+        <input
+          type="text"
+          name="search"
+          id="search"
+          placeholder="Search Contact..."
+        />
 
-      <p class="heading">Your Contacts</p>
-      <ul class="contacts" id="contacts"></ul>
+        <p class="heading">Your Contacts</p>
+        <ul class="contacts" id="contacts"></ul>
+      </div>
+      <div class="rightDiv">
+        <iframe
+          id="inlineFrameExample"
+          title="Inline Frame Example"
+          width="300"
+          height="200"
+          src="./t.html"
+        >
+        </iframe>
+      </div>
     </div>
     <script src="./script.js"></script>
 
