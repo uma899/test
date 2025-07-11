@@ -67,6 +67,7 @@ contacts.addEventListener("click", function (event) {
       `<div class='circle' style = "left: ${event.clientX}px"></div>`;
 
     setTimeout(() => {
+      document.querySelector('.circle').remove()
       window.location.href = `./chat.html?contact=${event.target.getAttribute(
         "phone"
       )}&name=${event.target.getAttribute("name")}`;
